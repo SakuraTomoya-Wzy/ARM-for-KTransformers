@@ -1,6 +1,9 @@
-[submodule "third_party/llama.cpp"]
-	path = third_party/llama.cpp
-	url = https://github.com/ggerganov/llama.cpp.git
 [submodule "third_party/pybind11"]
-	path = third_party/pybind11
-	url = https://github.com/pybind/pybind11.git
+    path = third_party/pybind11
+    url = https://github.com/SakuraTomoya-Wzy/ARM-for-KTransformers.git
+    branch = pybind11
+
+[submodule "third_party/llama.cpp"]
+    path = third_party/llama.cpp
+    url = https://github.com/SakuraTomoya-Wzy/ARM-for-KTransformers.git
+    branch = llamacpp
