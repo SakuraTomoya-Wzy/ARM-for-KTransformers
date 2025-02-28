@@ -28,7 +28,7 @@ from packaging.version import parse
 import torch.version
 from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 from setuptools import setup, Extension
-from cpufeature.extension import CPUFeature
+#from cpufeature.extension import CPUFeature
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CUDA_HOME
 
 class CpuInstructInfo:
@@ -82,6 +82,7 @@ class VersionInfo:
         elif CpuInstructInfo.CPU_INSTRUCT == CpuInstructInfo.AVX2:
             return "avx2"
         else:
+            return "native"
             print("Using native cpu instruct")
         if sys.platform.startswith("linux"):
             with open('/proc/cpuinfo', 'r', encoding="utf-8") as cpu_f:
@@ -217,6 +218,9 @@ class CMakeBuild(BuildExtension):
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
+            "-DCMAKE_C_FLAGS=-march=armv8.6-a+fp+simd+sve+sve2+i8mm+f32mm+f64mm+fp16+bf16+fp16fml+crc",
+            "-DCMAKE_CXX_FLAGS=-march=armv8.6-a+fp+simd+sve+sve2+i8mm+f32mm+f64mm+fp16+bf16+fp16fml+crc",
+            #"-DCMAKE_CXX_FLAGS=-march=armv8-a+fp+simd"
         ]
         build_args = []
         if "CMAKE_ARGS" in os.environ:
@@ -278,7 +282,7 @@ class CMakeBuild(BuildExtension):
         if "CMAKE_BUILD_PARALLEL_LEVEL" not in os.environ:
             if hasattr(self, "parallel") and self.parallel:
                 build_args += [f"-j{self.parallel}"]
-        print("CMake args:", cmake_args)
+        print("Here CMake args:", cmake_args)
         build_temp = Path(ext.sourcedir) / "build"
         if not build_temp.exists():
             build_temp.mkdir(parents=True)
@@ -303,11 +307,12 @@ setup(
             'ktransformers/ktransformers_ext/cuda/gptq_marlin/gptq_marlin.cu'
         ],
         extra_compile_args={
-                'cxx': ['-O3'],
+                'cxx': ['-O3', "-I/usr/include/python3.10", "-I/home/shadeform/.local/lib/python3.10/site-packages/pybind11/include"],
                 'nvcc': [
                     '-O3',
                     '--use_fast_math',
                     '-Xcompiler', '-fPIC',
+                    "-I/usr/include/python3.10", "-I/home/shadeform/.local/lib/python3.10/site-packages/pybind11/include",
                 ]
             }
         )
