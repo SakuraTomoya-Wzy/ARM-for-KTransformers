@@ -249,6 +249,18 @@ typedef struct {
 } block_q4_K;
 static_assert(sizeof(block_q4_K) == 2*sizeof(ggml_half) + K_SCALE_SIZE + QK_K/2, "wrong q4_K block size/padding");
 
+//[kawrakow] Need these two for performance on Arm
+typedef struct {
+    ggml_half d[8];
+    int8_t qs[4*QK8_1];
+} block_q8_1_x4;
+static_assert(sizeof(block_q8_1_x4) == 4*sizeof(block_q8_1), "wrong q8_1_x4 block size/padding");
+typedef struct {
+    ggml_half d[4];
+    int8_t qs[4*QK8_0];
+} block_q8_0_x4;
+static_assert(sizeof(block_q8_0_x4) == 4*sizeof(block_q8_0), "wrong q8_0_x4 block size/padding");
+
 // 5-bit quantization
 // 8 blocks of 32 elements each
 // weight is represented as x = a * q + b
